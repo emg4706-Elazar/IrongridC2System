@@ -19,7 +19,16 @@ public class Program
             .AddJsonFile("appsettings.json")
             .Build();
 
+        string bootstrapServers = 
+            configuration["Kafka:BootstrapServers"]!;
 
+        string uavTopic = configuration["Kafka:Topics:UAV"]
+            ?? throw new InvalidOperationException(
+                "\u2717 Failed: Topic's name of 'uav' is missing.");
+
+        string sensorTopic = configuration["Kafka:Topics:PerimeterSensor"]
+            ?? throw new InvalidOperationException(
+                "\u2717 Failed: Topic's name of 'PerimeterSensor' is missing.");
 
 
         // =================== Load Files ===================
@@ -32,5 +41,35 @@ public class Program
 
         var reports = loader.Load<Report>(reportsPath);
 
+        Console.WriteLine(
+            $"\u2714  'field_reports.json' loaded successfully.");
+
+        // ============= Ensure If Topics is Exist ============
+        var topicManager = 
+            new KafkaTopicManager(bootstrapServers);
+
+        await topicManager.EnsureIfTopicExitsAsync(uavTopic);
+        await topicManager.EnsureIfTopicExitsAsync(sensorTopic);
+
+        // =============== Send The Reports ==============
+        using var producer = 
+            new ProducerService(bootstrapServers);
+
+        foreach (Report report in reports)
+        {
+            if (report.AssetType == "PerimeterSensor")
+            {
+                await producer.ProduceAsync<Report>(
+                    sensorTopic, report);
+            }
+
+            if (report.AssetType == "UAV")
+            {
+                await producer.ProduceAsync<Report>(
+                    uavTopic, report);
+            }
+        }
+        producer.Flush();
+        Console.WriteLine("\u2714 All reports sent successfully");
     }
 }
