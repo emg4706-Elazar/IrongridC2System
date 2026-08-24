@@ -4,7 +4,7 @@
 
 -- Create the database required for the system.
 
-CREATE DATABASE testDb;
+CREATE DATABASE IF NOT EXISTS testDb;
 USE testDb;
 
 -- ============================================================
@@ -15,7 +15,7 @@ USE testDb;
 -- Define all required columns, data types, constraints,
 -- and the primary key according to the project specification.
 
-CREATE TABLE Units(
+CREATE TABLE IF NOT EXISTS Units(
 	Id INT AUTO_INCREMENT PRIMARY KEY,
 	UnitName VARCHAR(100) DEFAULT "UnknownUnit",
 	Sector VARCHAR(100) DEFAULT "General"
@@ -30,13 +30,12 @@ CREATE TABLE Units(
 -- Define all required columns, data types, constraints,
 -- and the primary key according to the project specification.
 
-CREATE TABLE Assets(
+CREATE TABLE IF NOT EXISTS Assets(
 	Id INT AUTO_INCREMENT PRIMARY KEY,
 	AssetSerial VARCHAR(100) NOT NULL,
 	Type VARCHAR(100) DEFAULT "GenericAsset",
 	UnitId INT,
-	CONSTRAINT fk_UnitId
-	FOREIGN KEY UnitId (UnitId)
+	FOREIGN KEY (UnitId)
 	REFERENCES Units(Id)
 	ON DELETE CASCADE
 	ON UPDATE CASCADE
@@ -52,14 +51,13 @@ CREATE TABLE Assets(
 -- and the primary key according to the project specification.
 
 CREATE TABLE AssetLiveStatus(
+	AssetId INT PRIMARY KEY,
 	AssetType ENUM('UAV', 'PerimeterSensor'),
 	RawValue VARCHAR(200) NOT NULL,
 	ProcessedStatus ENUM('Stable', 'Warning'),
 	IsVerified BOOLEAN NOT NULL,
 	LastUpdate DATE NOT NULL,
-	AssetId INT PRIMARY KEY,
-	CONSTRAINT fk_AssetId
-	FOREIGN KEY AssetId (AssetId)
+	FOREIGN KEY (AssetId)
 	REFERENCES Assets (Id)
 	ON DELETE CASCADE
 	ON UPDATE CASCADE

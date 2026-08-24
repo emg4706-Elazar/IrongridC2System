@@ -1,11 +1,12 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.Text.Json.Serialization;
 
-namespace Consumer.Models;
+namespace API.Models;
 
 public class Asset
 {
     [Required]
-    public int id { get; set; }
+    public int Id { get; set; }
 
     public int UnitId { get; set; }
 
@@ -13,4 +14,10 @@ public class Asset
     public string AssetSerial { get; set; } = string.Empty;
 
     public string Type { get; set; } = "GenericAsset";
+
+    [JsonIgnore]
+    public Unit Unit { get; set; } = null!;
+
+    [JsonIgnore]
+    public AssetStatus AssetStatus { get; set; } = null!;
 }
