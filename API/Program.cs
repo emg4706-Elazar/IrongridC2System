@@ -1,11 +1,31 @@
+using API.Data;
+using API.Repositories;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
+
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-
 builder.Services.AddControllers();
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+
+var connectionString = 
+    builder.Configuration
+    .GetConnectionString("DefaultConnection")
+    ?? throw new InvalidOperationException(
+        $"ConnectionString is missing.");
+
+
+// Register the DbContext
+builder.Services.AddDbContext<AppDbContext>(options =>
+options.UseMySql(connectionString,
+ServerVersion.AutoDetect(connectionString))
+);
+
+// Register the repository
+builder.Services.AddScoped<IIrongridRepository, IrongridRepository>();
 
 var app = builder.Build();
 
