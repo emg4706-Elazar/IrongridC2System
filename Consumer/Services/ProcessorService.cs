@@ -32,7 +32,20 @@ public class ProcessorService
         if (created == null)
             return false;
 
-        _context.Set<AssetStatus>().Add(created);
+        var existReport = await _context.AssetLiveStatus.FindAsync(report.AssetId);
+        if (existReport == null)
+        {
+            _context.Set<AssetStatus>().Add(created);
+        }
+        else
+        {
+            existReport.AssetType = created.AssetType;
+            existReport.RawValue = created.RawValue;
+            existReport.ProcessedStatus = created.ProcessedStatus;
+            existReport.IsVerified = created.IsVerified;
+            existReport.LastUpdate = created.LastUpdate;
+        }
+        
 
         await _context.SaveChangesAsync();
 
@@ -80,19 +93,16 @@ public class ProcessorService
     {
         string processedStatus = "Warning";
         bool isVerified = false;
+        List<string> goodKeywords = new() { "GOOD", "Good", "good", "gud" };
 
-        if (report.RawValue == "GOOD" ||
-            report.RawValue == "Good" ||
-            report.RawValue == "good" ||
-            report.RawValue == "gud")
+        if (goodKeywords.Contains(report.RawValue))
         {
             processedStatus = "Stable";
             isVerified = true;
         }
-        if (processedStatus == "Bad" ||
-            processedStatus == "BAD" ||
-            processedStatus == "bad" ||
-            processedStatus == "bed")
+
+        List<string> badKeywords = new() { "Bad", "BAD", "bad", "bed" };
+        if (badKeywords.Contains(report.RawValue))
         {
             processedStatus = "Warning";
             isVerified = true;
