@@ -4,7 +4,8 @@
 
 -- Create the database required for the system.
 
-
+CREATE DATABASE testDb;
+USE testDb;
 
 -- ============================================================
 -- SECTION 2: UNITS TABLE
@@ -14,7 +15,11 @@
 -- Define all required columns, data types, constraints,
 -- and the primary key according to the project specification.
 
-
+CREATE TABLE Units(
+	Id INT AUTO_INCREMENT PRIMARY KEY,
+	UnitName VARCHAR(100) DEFAULT "UnknownUnit",
+	Sector VARCHAR(100) DEFAULT "General"
+)ENGINE = INNODB;
 
 
 -- ============================================================
@@ -25,6 +30,17 @@
 -- Define all required columns, data types, constraints,
 -- and the primary key according to the project specification.
 
+CREATE TABLE Assets(
+	Id INT AUTO_INCREMENT PRIMARY KEY,
+	AssetSerial VARCHAR(100) NOT NULL,
+	Type VARCHAR(100) DEFAULT "GenericAsset",
+	UnitId INT,
+	CONSTRAINT fk_UnitId
+	FOREIGN KEY UnitId (UnitId)
+	REFERENCES Units(Id)
+	ON DELETE CASCADE
+	ON UPDATE CASCADE
+	)ENGINE = INNODB;
 
 
 -- ============================================================
@@ -34,6 +50,20 @@
 -- Create the AssetLiveStatuses table.
 -- Define all required columns, data types, constraints,
 -- and the primary key according to the project specification.
+
+CREATE TABLE AssetLiveStatus(
+	AssetType ENUM('UAV', 'PerimeterSensor'),
+	RawValue VARCHAR(200) NOT NULL,
+	ProcessedStatus ENUM('Stable', 'Warning'),
+	IsVerified BOOLEAN NOT NULL,
+	LastUpdate DATE NOT NULL,
+	AssetId INT PRIMARY KEY,
+	CONSTRAINT fk_AssetId
+	FOREIGN KEY AssetId (AssetId)
+	REFERENCES Assets (Id)
+	ON DELETE CASCADE
+	ON UPDATE CASCADE
+	)ENGINE = INNODB;
 
 
 
