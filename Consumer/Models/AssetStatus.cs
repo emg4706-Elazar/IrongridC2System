@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Consumer.Models;
 
-public class AssetLiveStatus
+public class AssetStatus
 {
     public int AssetId { get; set; }
     public string AssetType { get; set; } = string.Empty;

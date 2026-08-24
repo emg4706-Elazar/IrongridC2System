@@ -13,5 +13,13 @@ public class AppDbContext : DbContext
 
     public DbSet<Unit> Units => Set<Unit>();
     public DbSet<Asset> Assets => Set<Asset>();
-    public DbSet<AssetLiveStatus> AssetLiveStatus => Set<AssetLiveStatus>();
+    public DbSet<AssetStatus> AssetLiveStatus => Set<AssetStatus>();
+
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    {
+        base.OnModelCreating(modelBuilder);
+
+        modelBuilder.Entity<AssetStatus>()
+            .HasKey(a => a.AssetId);
+    }
 }
